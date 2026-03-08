@@ -220,10 +220,15 @@ async function startServer() {
       appType: "spa",
     });
     app.use(vite.middlewares);
-  } else {
-    app.use(express.static(path.resolve(__dirname, "dist")));
+    // Fallback to index.html for SPA routing
     app.get("*", (req, res) => {
-      res.sendFile(path.resolve(__dirname, "dist", "index.html"));
+      res.sendFile(path.resolve(__dirname, "index.html"));
+    });
+  } else {
+    const distPath = path.resolve(__dirname, "dist");
+    app.use(express.static(distPath));
+    app.get("*", (req, res) => {
+      res.sendFile(path.resolve(distPath, "index.html"));
     });
   }
 
