@@ -220,17 +220,19 @@ async function startServer() {
       appType: "spa",
     });
     app.use(vite.middlewares);
-    // Fallback to index.html for SPA routing
-    app.get("*", (req, res) => {
-      res.sendFile(path.resolve(__dirname, "index.html"));
-    });
   } else {
     const distPath = path.resolve(__dirname, "dist");
     app.use(express.static(distPath));
-    app.get("*", (req, res) => {
-      res.sendFile(path.resolve(distPath, "index.html"));
-    });
   }
+
+  // Fallback to index.html for SPA routing (must be last)
+  app.get("*", (req, res) => {
+    if (process.env.NODE_ENV === "production") {
+      res.sendFile(path.resolve(__dirname, "dist", "index.html"));
+    } else {
+      res.sendFile(path.resolve(__dirname, "index.html"));
+    }
+  });
 
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`Server running on http://localhost:${PORT}`);
